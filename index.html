@@ -2,8 +2,8 @@
 <html lang="tr">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
-  <title>🚗 Hill Climb - Sabit Basılı Tutma</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sonsuz Hill Climb</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     html, body { height: 100%; overflow: hidden; font-family: sans-serif; }
@@ -20,40 +20,71 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      text-align: center;
       z-index: 9999;
     }
 
     #game {
       width: 100vw;
       height: 100vh;
+      background: linear-gradient(to top, #87ceeb, #e0f7ff);
+      overflow: hidden;
       position: relative;
-      background: linear-gradient(to top, #6bdbff, #b7f0ff);
     }
 
-    #ground {
+    /* Clouds için ayrı bir konteyner yerine doğrudan game div'ine ekleyeceğiz */
+
+    .cloud {
+      position: absolute;
+      top: 0; /* Yukarıdan başlaması için */
+      font-size: 40px; /* Varsayılan boyut */
+      z-index: 1;
+      animation: moveCloudInstance 60s linear infinite; /* Her bulut kendi animasyonuna sahip olacak */
+    }
+
+    @keyframes moveCloudInstance {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-200vw); } /* Bulutların tamamen ekran dışına çıkması için */
+    }
+
+    #world {
       position: absolute;
       bottom: 0;
+      display: flex;
       height: 100px;
-      width: 200%;
+      left: 0;
+      z-index: 2;
+    }
+
+    .groundSegment {
+      width: 200px;
+      height: 100px;
       background: #4CAF50;
+    }
+
+    .tree {
+      position: absolute;
+      bottom: 100px;
+      font-size: 40px;
+      z-index: 3;
     }
 
     #car {
       font-size: 60px;
       position: absolute;
       bottom: 100px;
-      left: 100px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 4;
     }
 
     .controls {
       position: absolute;
-      bottom: 110px;
+      bottom: 120px;
       left: 50%;
       transform: translateX(-50%);
       display: flex;
       gap: 40px;
-      z-index: 10;
+      z-index: 5;
     }
 
     .btn {
@@ -66,22 +97,15 @@
       user-select: none;
       touch-action: none;
     }
-
-    .btn:active {
-      background: rgba(0,0,0,0.8);
-    }
   </style>
 </head>
 <body>
 
-<div id="orientationWarning">
-  Lütfen daha iyi bir deneyim için<br><strong>telefonu yatay konuma çevirin 📱➡️📱</strong>
-</div>
+<div id="orientationWarning">Lütfen telefonu yatay çevirin 📱➡️📱</div>
 
 <div id="game">
-  <div id="ground"></div>
+  <div id="world"></div>
   <div id="car">🚗</div>
-
   <div class="controls">
     <button id="leftBtn" class="btn">◀️</button>
     <button id="rightBtn" class="btn">▶️</button>
@@ -89,86 +113,171 @@
 </div>
 
 <script>
-  const car = document.getElementById("car");
+  const world = document.getElementById("world");
   const leftBtn = document.getElementById("leftBtn");
   const rightBtn = document.getElementById("rightBtn");
+  const game = document.getElementById("game");
 
-  let carX = 100;
+  let offset = 0;
   let velocity = 0;
   let acceleration = 0;
   const friction = 0.95;
 
-  function update() {
-    velocity += acceleration;
-    velocity *= friction;
-    carX += velocity;
+  const treeList = [];
+  let lastTreePosition = 0;
 
-    if (carX < 0) carX = 0;
-    if (carX > window.innerWidth - 60) carX = window.innerWidth - 60;
+  const cloudList = [];
+  let lastCloudPosition = 0; // Bulutların son eklendiği yatay konum
+  const cloudSpawnMinDistance = 150; // Yeni bir bulut için minimum mesafe
+  const cloudSpawnMaxDistance = 400; // Yeni bir bulut için maksimum mesafe
 
-    car.style.left = carX + "px";
-    requestAnimationFrame(update);
+  function createGround() {
+    const segment = document.createElement("div");
+    segment.className = "groundSegment";
+    world.appendChild(segment);
   }
 
-  // Klavye kontrol
-  document.addEventListener("keydown", (e) => {
-    if (e.key === "ArrowRight") acceleration = 0.5;
-    if (e.key === "ArrowLeft") acceleration = -0.5;
-  });
-
-  document.addEventListener("keyup", (e) => {
-    if (e.key === "ArrowRight" || e.key === "ArrowLeft") acceleration = 0;
-  });
-
-  // Basılı tutma için interval sistemi
-  let holdInterval = null;
-
-  function handleHoldStart(direction) {
-    acceleration = direction;
-    if (holdInterval) clearInterval(holdInterval);
-    holdInterval = setInterval(() => {
-      acceleration = direction;
-    }, 16); // yaklaşık 60 FPS
+  function createTree(globalX) {
+    const tree = document.createElement("div");
+    tree.className = "tree";
+    tree.dataset.globalX = globalX;
+    tree.textContent = ["🌳", "🌴", "🌲"][Math.floor(Math.random() * 3)];
+    game.appendChild(tree);
+    treeList.push(tree);
   }
 
-  function handleHoldStop() {
-    if (holdInterval) clearInterval(holdInterval);
-    holdInterval = null;
-    acceleration = 0;
+  function createCloud(globalX) {
+    const cloud = document.createElement("div");
+    cloud.className = "cloud";
+    cloud.dataset.globalX = globalX;
+    cloud.textContent = "☁️";
+
+    // Rastgele boyut ve opaklık ayarları
+    const randomSize = Math.random() * 30 + 30; // 30px ile 60px arası
+    const randomOpacity = Math.random() * 0.5 + 0.3; // %30 ile %80 arası opaklık
+    const randomY = Math.random() * (window.innerHeight / 3); // Ekranın üst üçte birlik kısmında rastgele yükseklik
+
+    cloud.style.fontSize = randomSize + "px";
+    cloud.style.opacity = randomOpacity;
+    cloud.style.top = randomY + "px"; // Yüksekliği ayarla
+
+    game.appendChild(cloud);
+    cloudList.push(cloud);
   }
 
-  function setupHoldEvents(btn, direction) {
-    btn.addEventListener("touchstart", (e) => {
-      e.preventDefault();
-      handleHoldStart(direction);
-    });
-    btn.addEventListener("touchend", handleHoldStop);
-    btn.addEventListener("touchcancel", handleHoldStop);
+  function updateTrees() {
+    for (let tree of treeList) {
+      const globalX = parseFloat(tree.dataset.globalX);
+      const screenX = globalX - offset;
+      tree.style.left = screenX + "px";
 
-    btn.addEventListener("mousedown", () => handleHoldStart(direction));
-    btn.addEventListener("mouseup", handleHoldStop);
-    btn.addEventListener("mouseleave", handleHoldStop);
-  }
-
-  setupHoldEvents(leftBtn, -0.5);
-  setupHoldEvents(rightBtn, 0.5);
-
-  // Ekran yönü kontrolü
-  function checkOrientation() {
-    const warning = document.getElementById("orientationWarning");
-    const game = document.getElementById("game");
-    if (window.innerHeight > window.innerWidth) {
-      warning.style.display = "flex";
-      game.style.display = "none";
-    } else {
-      warning.style.display = "none";
-      game.style.display = "block";
+      // Ekran dışına çıkan ağaçları temizle
+      if (screenX < -100) { // Ağaç tamamen ekran dışına çıktığında
+        tree.remove();
+        treeList.splice(treeList.indexOf(tree), 1);
+      }
     }
   }
 
+  function updateClouds() {
+    for (let cloud of cloudList) {
+      const globalX = parseFloat(cloud.dataset.globalX);
+      const screenX = globalX - offset * 0.2; // Bulutlar daha yavaş hareket etsin (paralaks etkisi)
+      cloud.style.left = screenX + "px";
+
+      // Ekran dışına çıkan bulutları temizle
+      if (screenX < -200) { // Bulut tamamen ekran dışına çıktığında
+        cloud.remove();
+        cloudList.splice(cloudList.indexOf(cloud), 1);
+      }
+    }
+  }
+
+  function update() {
+    velocity += acceleration;
+    velocity *= friction;
+    offset -= velocity;
+    world.style.left = -offset + "px";
+
+    // Zemin segmentlerini oluşturma
+    const neededSegments = Math.ceil((Math.abs(offset) + window.innerWidth) / 200);
+    while (world.children.length < neededSegments) {
+      createGround();
+    }
+
+    // Ağaçları oluşturma
+    const currentGroundEnd = offset + world.children.length * 200;
+    while (currentGroundEnd - lastTreePosition >= 300) {
+      createTree(lastTreePosition + Math.random() * 200 + 100); // Rastgele aralıkta ağaç
+      lastTreePosition = parseFloat(treeList[treeList.length - 1].dataset.globalX);
+    }
+
+    // Bulutları oluşturma
+    const screenRightEdge = offset + window.innerWidth;
+    // Eğer ekranın sağ kenarı ile son bulut arasındaki mesafe yeterliyse yeni bulut ekle
+    if (screenRightEdge - lastCloudPosition > cloudSpawnMinDistance) {
+      const spawnX = lastCloudPosition + Math.random() * (cloudSpawnMaxDistance - cloudSpawnMinDistance) + cloudSpawnMinDistance;
+      createCloud(spawnX);
+      lastCloudPosition = spawnX;
+    }
+
+
+    // Bulutları ve ağaçları güncelle
+    updateTrees();
+    updateClouds();
+
+    requestAnimationFrame(update);
+  }
+
+  function hold(dir) {
+    acceleration = dir;
+    clearInterval(window.holdInt);
+    window.holdInt = setInterval(() => acceleration = dir, 16);
+  }
+
+  function stop() {
+    clearInterval(window.holdInt);
+    acceleration = 0;
+  }
+
+  // Tuş görevleri değiştirildi:
+  setup(leftBtn, 0.5);  // Sol tuş: araba sağa gider (yol sola kayar)
+  setup(rightBtn, -0.5); // Sağ tuş: araba sola gider (yol sağa kayar)
+
+  function setup(btn, dir) {
+    btn.addEventListener("touchstart", e => { e.preventDefault(); hold(dir); });
+    btn.addEventListener("touchend", stop);
+    btn.addEventListener("mousedown", () => hold(dir));
+    btn.addEventListener("mouseup", stop);
+    btn.addEventListener("mouseleave", stop);
+  }
+
+  function checkOrientation() {
+    const warning = document.getElementById("orientationWarning");
+    warning.style.display = window.innerHeight > window.innerWidth ? "flex" : "none";
+  }
   window.addEventListener("resize", checkOrientation);
   window.addEventListener("orientationchange", checkOrientation);
   checkOrientation();
+
+  // İlk zemin segmentlerini oluştur
+  for(let i=0; i < Math.ceil(window.innerWidth / 200) + 2; i++) { // Ekran genişliğine göre başlangıçta yeterli zemin
+      createGround();
+  }
+
+  // Başlangıçta birkaç ağaç oluştur
+  for(let i = 0; i < 5; i++) {
+      createTree(i * 300 + Math.random() * 100);
+      lastTreePosition = parseFloat(treeList[treeList.length - 1].dataset.globalX);
+  }
+
+  // Başlangıçta birkaç bulut oluştur
+  for(let i = 0; i < 5; i++) {
+      createCloud(i * 400 + Math.random() * 200);
+      lastCloudPosition = parseFloat(cloudList[cloudList.length - 1].dataset.globalX);
+  }
+
+
   update();
 </script>
 
