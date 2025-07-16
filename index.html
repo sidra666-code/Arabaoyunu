@@ -174,16 +174,23 @@
       z-index: 5;
     }
 
-    .btn {
+    /* İLERİ/GERİ TUŞLARI İÇİN ÖZGÜL .btn STİLİ */
+    .controls .btn { 
       background: rgba(0,0,0,0.6);
       color: white;
-      padding: 12px 18px;
-      border-radius: 10px;
-      font-size: 18px;
+      width: 60px; /* Genişliği kısaltıldı */
+      height: 60px; /* Kare yapmak için yükseklik de aynı yapıldı */
+      border-radius: 10px; /* Kareye yakın yuvarlatma */
+      font-size: 24px; /* Buton içindeki simgeyi büyütmek için */
+      display: flex; /* İçeriği ortalamak için */
+      justify-content: center; /* İçeriği yatayda ortala */
+      align-items: center; /* İçeriği dikeyde ortala */
       border: none;
       user-select: none;
       touch-action: none;
+      padding: 0; /* Padding'i sıfırlıyoruz, width/height kendileri boyut verecek */
     }
+
 
     /* Trafik Işığı Stilleri */
     .traffic-light {
@@ -239,19 +246,181 @@
       display: none;
     }
 
+    /* Mevcut restartButton stillerini kaldırıyoruz veya override ediyoruz */
     #gameOverScreen button {
-        margin-top: 30px;
-        padding: 15px 30px;
-        font-size: 24px;
-        background-color: #4CAF50;
-        color: white;
-        border: none;
-        border-radius: 8px;
-        cursor: pointer;
+        margin-top: 30px; 
+        background: none; 
+        border: none; 
+        padding: 0; 
     }
 
-    #gameOverScreen button:hover {
-        background-color: #45a049;
+    /* YENİ TEKRAR OYNA BUTONU İÇİN GENEL .btn STİLİ */
+    #restartButton { 
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 13rem; 
+      overflow: hidden;
+      height: 3rem; 
+      background-size: 300% 300%;
+      cursor: pointer;
+      backdrop-filter: blur(1rem);
+      border-radius: 5rem;
+      transition: 0.5s;
+      animation: gradient_301 5s ease infinite;
+      border: double 4px transparent;
+      /* Mavi kareyi kaldırmak için background-image'i tamamen kaldırdık */
+      background-image: none; 
+      background-origin: border-box;
+      background-clip: content-box, border-box;
+      position: relative;
+    }
+
+    /* Tekrar oyna butonunun hover ve active durumlarında da mavi kare çıkmaması için */
+    #restartButton:active {
+        border: double 4px #fe53bb;
+        background-image: none; /* Active durumda da background-image olmasın */
+        background-origin: border-box;
+        background-clip: content-box, border-box;
+        animation: none;
+    }
+
+    #container-stars {
+      position: absolute;
+      z-index: -1;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      transition: 0.5s;
+      backdrop-filter: blur(1rem);
+      border-radius: 5rem;
+    }
+
+    /* .btn strong'dan farkını belirtmek için ID seçici kullandık */
+    #restartButton strong { 
+      z-index: 2;
+      font-family: "Arial", sans-serif;
+      font-size: 12px;
+      letter-spacing: 5px;
+      color: #ffffff;
+      text-shadow: 0 0 4px white;
+    }
+
+    #glow {
+      position: absolute;
+      display: flex;
+      width: 12rem;
+    }
+
+    .circle {
+      width: 100%;
+      height: 30px;
+      filter: blur(2rem);
+      animation: pulse_3011 4s infinite;
+      z-index: -1;
+    }
+
+    .circle:nth-of-type(1) {
+      background: rgba(254, 83, 186, 0.636);
+    }
+
+    .circle:nth-of-type(2) {
+      background: rgba(142, 81, 234, 0.704);
+    }
+
+    /* Bu hover sadece #restartButton için geçerli olacak şekilde güncellendi */
+    #restartButton:hover #container-stars {
+      z-index: 1;
+      background-color: #212121;
+    }
+
+    /* Bu hover sadece #restartButton için geçerli olacak şekilde güncellendi */
+    #restartButton:hover {
+      transform: scale(1.1);
+    }
+
+
+    #stars {
+      position: relative;
+      background: transparent;
+      width: 200rem;
+      height: 200rem;
+    }
+
+    #stars::after {
+      content: "";
+      position: absolute;
+      top: -10rem;
+      left: -100rem;
+      width: 100%;
+      height: 100%;
+      animation: animStarRotate 90s linear infinite;
+      background-image: radial-gradient(#ffffff 1px, transparent 1%);
+      background-size: 50px 50px;
+    }
+
+    #stars::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: -50%;
+      width: 170%;
+      height: 500%;
+      animation: animStar 60s linear infinite;
+      background-image: radial-gradient(#ffffff 1px, transparent 1%);
+      background-size: 50px 50px;
+      opacity: 0.5;
+    }
+
+    @keyframes animStar {
+      from {
+        transform: translateY(0);
+      }
+
+      to {
+        transform: translateY(-135rem);
+      }
+    }
+
+    @keyframes animStarRotate {
+      from {
+        transform: rotate(360deg);
+      }
+
+      to {
+        transform: rotate(0);
+      }
+    }
+
+    @keyframes gradient_301 {
+      0% {
+        background-position: 0% 50%;
+      }
+
+      50% {
+        background-position: 100% 50%;
+      }
+
+      100% {
+        background-position: 0% 50%;
+      }
+    }
+
+    @keyframes pulse_3011 {
+      0% {
+        transform: scale(0.75);
+        box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.7);
+      }
+
+      70% {
+        transform: scale(1);
+        box-shadow: 0 0 0 10px rgba(0, 0, 0, 0);
+      }
+
+      100% {
+        transform: scale(0.75);
+        box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
+      }
     }
 
     /* Skor ve Benzin Göstergeleri */
@@ -307,7 +476,17 @@
 
 <div id="gameOverScreen">
     <div>OYUN BİTTİ!</div>
-    <button id="restartButton">TEKRAR OYNA</button>
+    
+<button type="button" class="btn" id="restartButton">
+        <strong>TEKRAR OYNA</strong>
+        <div id="container-stars">
+            <div id="stars"></div>
+        </div>
+        <div id="glow">
+            <div class="circle"></div>
+            <div class="circle"></div>
+        </div>
+    </button>
 </div>
 
 <script>
@@ -320,7 +499,7 @@
   const loadingText = document.getElementById("loadingText");
   const startButton = document.getElementById("startButton");
   const gameOverScreen = document.getElementById("gameOverScreen");
-  const restartButton = document.getElementById("restartButton");
+  const restartButton = document.getElementById("restartButton"); 
   const scoreDisplay = document.getElementById("scoreDisplay");
   const fuelDisplay = document.getElementById("fuelDisplay");
   const fuelCountdown = document.getElementById("fuelCountdown");
@@ -332,11 +511,13 @@
   let offset = 0;
   let velocity = 0;
   let acceleration = 0;
-  // ARABA HIZ AYARLARI - DÜZELTİLMİŞ
-  const friction = 0.95; // Biraz artırıldı (eskiden 0.97 idi)
-  const maxVelocity = 12; // Önemli ölçüde azaltıldı (eskiden 18 idi)
-  const accelerationRate = 0.4; // Biraz azaltıldı (eskiden 0.6 idi)
+  const friction = 0.95;
+  const maxVelocity = 12;
+  const accelerationRate = 0.4;
   const stopSoundThreshold = 0.5;
+
+  // Yeni eklendi: Arabanın başlangıçtaki hızı
+  const initialCarVelocity = 5; // Normal bir başlangıç hızı olarak ayarlandı
 
   let gameRunning = false;
   let animationFrameId;
@@ -344,7 +525,7 @@
   let isPlayingSound = false;
 
   let score = 0;
-  const initialFuelCountdown = 15;
+  const initialFuelCountdown = 15; // Geri sayım 15 saniyeye ayarlandı!
   let fuelCountdownTimer = initialFuelCountdown;
   let fuelIntervalId = null;
 
@@ -420,20 +601,24 @@
         if (this.state === 'red') {
           this.state = 'green';
           this.updateLights();
-          this.lightInterval = setTimeout(() => cycleLights(), 5000);
+          this.lightInterval = setTimeout(() => cycleLights(), 2000); // Kırmızıdan sonra 2 sn yeşil
         } else if (this.state === 'green') {
           this.state = 'yellow';
           this.updateLights();
-          this.lightInterval = setTimeout(() => cycleLights(), 1000);
+          this.lightInterval = setTimeout(() => cycleLights(), 1000); // Yeşilden sonra 1 sn sarı
         } else if (this.state === 'yellow') {
           this.state = 'red';
           this.updateLights();
-          this.lightInterval = setTimeout(() => cycleLights(), 3000);
+          this.lightInterval = setTimeout(() => cycleLights(), 3500); // Sarıdan sonra 3.5 sn kırmızı
         }
       };
-      this.state = ['red', 'yellow', 'green'][Math.floor(Math.random() * 3)];
+      // Başlangıç durumu rastgele seçilebilir
+      const states = ['red', 'yellow', 'green'];
+      this.state = states[Math.floor(Math.random() * states.length)];
       this.updateLights();
-      this.lightInterval = setTimeout(() => cycleLights(), 100);
+      // Her ışığın kendi rastgele başlangıç gecikmesi olsun
+      const initialDelay = Math.random() * 5000; // 0-5 saniye arasında rastgele gecikme
+      this.lightInterval = setTimeout(() => cycleLights(), initialDelay); 
     }
 
     stopCycle() {
@@ -568,6 +753,7 @@
           carScreenX + carWidth / 2 > screenX &&
           carScreenX - carWidth / 2 < screenX + lightWidth)
       {
+          // Kırmızı ışıkta hız kontrolü
           if (Math.abs(velocity) > stopSoundThreshold) {
               gameOver("Kırmızı ışıkta geçtin!");
               return;
@@ -659,29 +845,21 @@
     }
 
     // TRAFİK IŞIKLARI VE BENZİN BİDONLARI İÇİN YENİ RASTGELE YERLEŞİM MANTIĞI
-    // Her obje için ayrı bir "bir sonraki hedef spawn konumu" belirle
-    // Bu sayede objeler birbirlerinin spawnını etkilemez.
-
-    // Trafik ışıklarını oluştur
-    // Eğer ekranda hiç trafik ışığı yoksa veya en sağdaki ışık yeterince uzaktaysa yeni bir tane oluştur
     if (trafficLightList.length === 0 ||
-        (trafficLightList[trafficLightList.length - 1].globalX - offset) < (window.innerWidth - trafficLightSpawnMinDistance)) { // Ekranın sağına yaklaşınca yeni bir tane ekle
-        const minSpawnFromScreenRight = 500; // Ekranın sağından minimum 500px uzakta başla
+        (trafficLightList[trafficLightList.length - 1].globalX - offset) < (window.innerWidth - trafficLightSpawnMinDistance)) { 
+        const minSpawnFromScreenRight = 500; 
         const randomDistance = Math.random() * (trafficLightSpawnMaxDistance - trafficLightSpawnMinDistance) + trafficLightSpawnMinDistance;
         const spawnX = offset + window.innerWidth + minSpawnFromScreenRight + randomDistance;
         createTrafficLight(spawnX);
     }
 
-    // Benzin bidonlarını oluştur
-    // Eğer ekranda hiç benzin bidonu yoksa veya en sağdaki bidon yeterince uzaktaysa yeni bir tane oluştur
     if (fuelCanList.length === 0 ||
-        (fuelCanList[fuelCanList.length - 1].dataset.globalX - offset) < (window.innerWidth - fuelCanSpawnMinDistance)) { // Ekranın sağına yaklaşınca yeni bir tane ekle
-        const minSpawnFromScreenRight = 300; // Ekranın sağından minimum 300px uzakta başla (trafik ışıktan biraz daha yakın olabilir)
+        (fuelCanList[fuelCanList.length - 1].dataset.globalX - offset) < (window.innerWidth - fuelCanSpawnMinDistance)) { 
+        const minSpawnFromScreenRight = 300; 
         const randomDistance = Math.random() * (fuelCanSpawnMaxDistance - fuelCanSpawnMinDistance) + fuelCanSpawnMinDistance;
         const spawnX = offset + window.innerWidth + minSpawnFromScreenRight + randomDistance;
         createFuelCan(spawnX);
     }
-
 
     updateTrees();
     updateClouds();
@@ -696,13 +874,14 @@
     if (gameRunning) return;
 
     offset = 0;
-    velocity = 0;
+    velocity = initialCarVelocity; // Araba başlangıç hızı ayarlandı!
     acceleration = 0;
     score = 0;
     fuelCountdownTimer = initialFuelCountdown;
 
     gameRunning = true;
 
+    // Önceki elementleri temizle
     while(world.firstChild) world.removeChild(world.firstChild);
     treeList.forEach(tree => tree.remove());
     treeList.length = 0;
@@ -713,27 +892,26 @@
     fuelCanList.forEach(can => can.remove());
     fuelCanList.length = 0;
 
-
+    // Zemin segmentlerini oluştur
     for(let i=0; i < Math.ceil(window.innerWidth / 200) + 2; i++) {
         createGround();
     }
     lastTreePosition = offset;
     lastCloudPosition = offset;
-    // lastTrafficLightPosition ve lastFuelCanPosition artık başlangıçta kullanılmayacak
-    // Çünkü yeni mantık, ekranın sağından itibaren rastgele spawn yapacak.
 
-
+    // Ağaçları oluştur
     for(let i = 0; i < 5; i++) {
         createTree(lastTreePosition + Math.random() * 200 + 100);
         lastTreePosition = parseFloat(treeList[treeList.length - 1].dataset.globalX);
     }
+    // Bulutları oluştur
     for(let i = 0; i < 5; i++) {
         createCloud(lastCloudPosition + Math.random() * 200 + 100);
         lastCloudPosition = parseFloat(cloudList[cloudList.length - 1].dataset.globalX);
     }
     // Başlangıçta 1 trafik ışığı ve 1 benzin bidonu oluştur
-    createTrafficLight(offset + window.innerWidth + 1000); // İlk trafik ışığı ekranın sağından 1000px uzakta
-    createFuelCan(offset + window.innerWidth + 500); // İlk benzin bidonu ekranın sağından 500px uzakta
+    createTrafficLight(offset + window.innerWidth + 1000); 
+    createFuelCan(offset + window.innerWidth + 500); 
 
 
     loadingScreen.style.display = "none";
