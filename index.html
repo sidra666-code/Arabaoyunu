@@ -6,7 +6,13 @@
   <title>Sonsuz Hill Climb</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    html, body { height: 100%; overflow: hidden; font-family: sans-serif; }
+    html, body {
+      height: 100%;
+      overflow: hidden;
+      font-family: sans-serif;
+      /* Yakınlaştırmayı kapatmak için dokunmatik aksiyonları kısıtla */
+      touch-action: pan-x pan-y;
+    }
 
     #orientationWarning {
       display: none;
@@ -52,19 +58,57 @@
       margin-bottom: 20px;
     }
 
+    /* Yeni "Başla" butonu stilleri */
     #startButton {
-      background: #4CAF50;
-      color: white;
-      padding: 15px 30px;
-      border: none;
-      border-radius: 8px;
-      font-size: 24px;
+      /* From Uiverse.io by Smit-Prajapati */
+      --main-color: rgb(46, 213, 115);
+      --main-bg-color: rgba(46, 213, 116, 0.36);
+      --pattern-color: rgba(46, 213, 116, 0.073);
+
+      filter: hue-rotate(0deg);
+
       cursor: pointer;
-      display: none; /* Başlangıçta gizli */
+      text-transform: uppercase;
+      letter-spacing: 0.3rem; /* Biraz küçülttüm */
+      background: radial-gradient(
+          circle,
+          var(--main-bg-color) 0%,
+          rgba(0, 0, 0, 0) 95%
+        ),
+        linear-gradient(var(--pattern-color) 1px, transparent 1px),
+        linear-gradient(to right, var(--pattern-color) 1px, transparent 1px);
+      background-size:
+        cover,
+        15px 15px,
+        15px 15px;
+      background-position:
+        center center,
+        center center,
+        center center;
+      border-image: radial-gradient(
+          circle,
+          var(--main-color) 0%,
+          rgba(0, 0, 0, 0) 100%
+        )
+        1;
+      border-width: 1px 0 1px 0;
+      color: var(--main-color);
+      padding: 0.8rem 2.5rem; /* Biraz küçülttüm */
+      font-weight: 700;
+      font-size: 1.2rem; /* Biraz küçülttüm */
+      transition: background-size 0.2s ease-in-out;
+      display: none; /* Başlangıçta gizli kalacak */
     }
 
     #startButton:hover {
-      background: #45a049;
+      background-size:
+        cover,
+        10px 10px,
+        10px 10px;
+    }
+
+    #startButton:active {
+      filter: hue-rotate(250deg);
     }
 
     .cloud {
@@ -140,7 +184,7 @@
 
 <div id="loadingScreen">
   <div id="loadingText">Yükleniyor...</div>
-  <button id="startButton">Başla</button>
+  <button id="startButton">BAŞLA</button>
 </div>
 
 <div id="game">
