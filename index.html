@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+tTreePosition = <!DOCTYPE html>
 <html lang="tr">
 <head>
   <meta charset="UTF-8" />
@@ -10,7 +10,6 @@
       height: 100%;
       overflow: hidden;
       font-family: sans-serif;
-      /* Yakınlaştırmayı kapatmak için dokunmatik aksiyonları kısıtla */
       touch-action: pan-x pan-y;
     }
 
@@ -24,9 +23,21 @@
       color: white;
       font-size: 24px;
       display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
       z-index: 9999;
+    }
+
+    #orientationWarning img {
+      max-width: 70%;
+      height: auto;
+      margin-bottom: 20px;
+    }
+
+    #orientationWarning div {
+        text-align: center;
+        padding: 0 20px;
     }
 
     #game {
@@ -35,7 +46,6 @@
       background: linear-gradient(to top, #87ceeb, #e0f7ff);
       overflow: hidden;
       position: relative;
-      /* Başlangıçta gizli olacak */
       display: none;
     }
 
@@ -44,23 +54,21 @@
       top: 0; left: 0;
       width: 100vw;
       height: 100vh;
-      background: #333; /* Koyu gri arka plan */
+      background: #333;
       color: white;
       font-size: 28px;
       display: flex;
-      flex-direction: column; /* Öğeleri dikeyde sırala */
+      flex-direction: column;
       align-items: center;
       justify-content: center;
-      z-index: 10000; /* Her şeyin üzerinde olsun */
+      z-index: 10000;
     }
 
     #loadingText {
       margin-bottom: 20px;
     }
 
-    /* Yeni "Başla" butonu stilleri */
     #startButton {
-      /* From Uiverse.io by Smit-Prajapati */
       --main-color: rgb(46, 213, 115);
       --main-bg-color: rgba(46, 213, 116, 0.36);
       --pattern-color: rgba(46, 213, 116, 0.073);
@@ -69,7 +77,7 @@
 
       cursor: pointer;
       text-transform: uppercase;
-      letter-spacing: 0.3rem; /* Biraz küçülttüm */
+      letter-spacing: 0.3rem;
       background: radial-gradient(
           circle,
           var(--main-bg-color) 0%,
@@ -93,11 +101,11 @@
         1;
       border-width: 1px 0 1px 0;
       color: var(--main-color);
-      padding: 0.8rem 2.5rem; /* Biraz küçülttüm */
+      padding: 0.8rem 2.5rem;
       font-weight: 700;
-      font-size: 1.2rem; /* Biraz küçülttüm */
+      font-size: 1.2rem;
       transition: background-size 0.2s ease-in-out;
-      display: none; /* Başlangıçta gizli kalacak */
+      display: none;
     }
 
     #startButton:hover {
@@ -176,11 +184,110 @@
       user-select: none;
       touch-action: none;
     }
+
+    /* Trafik Işığı Stilleri */
+    .traffic-light {
+      position: absolute;
+      bottom: 100px;
+      width: 40px;
+      height: 120px;
+      background-color: #333;
+      border-radius: 8px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-around;
+      align-items: center;
+      padding: 5px;
+      z-index: 3;
+    }
+
+    .traffic-light .light {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background-color: #555;
+      border: 2px solid #222;
+      box-shadow: inset 0 0 5px rgba(0,0,0,0.5);
+    }
+
+    .traffic-light .light.red.active { background-color: red; box-shadow: 0 0 15px red; }
+    .traffic-light .light.yellow.active { background-color: yellow; box-shadow: 0 0 15px yellow; }
+    .traffic-light .light.green.active { background-color: limegreen; box-shadow: 0 0 15px limegreen; }
+
+    /* Benzin Bidonu Stilleri */
+    .fuel-can {
+        position: absolute;
+        bottom: 100px;
+        font-size: 40px;
+        z-index: 3;
+    }
+
+    /* Oyun Bitti Ekranı */
+    #gameOverScreen {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.8);
+      color: white;
+      font-size: 36px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 10001;
+      display: none;
+    }
+
+    #gameOverScreen button {
+        margin-top: 30px;
+        padding: 15px 30px;
+        font-size: 24px;
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+    }
+
+    #gameOverScreen button:hover {
+        background-color: #45a049;
+    }
+
+    /* Skor ve Benzin Göstergeleri */
+    #scoreDisplay, #fuelDisplay {
+        position: absolute;
+        top: 15px;
+        background: rgba(0,0,0,0.6);
+        color: white;
+        padding: 8px 15px;
+        border-radius: 8px;
+        font-size: 20px;
+        z-index: 10;
+        min-width: 120px;
+        text-align: center;
+    }
+
+    #scoreDisplay {
+        right: 15px;
+    }
+
+    #fuelDisplay {
+        right: 150px; /* Skorun solunda durması için */
+    }
+
+    #fuelCountdown {
+        font-size: 1.2em;
+        color: #ffcc00;
+    }
   </style>
 </head>
 <body>
 
-<div id="orientationWarning">Lütfen telefonu yatay çevirin 📱➡️📱</div>
+<div id="orientationWarning">
+  <img src="yatay.gif" alt="Lütfen telefonu yatay çevirin">
+  <div>Lütfen telefonu yatay çevirin</div>
+</div>
 
 <div id="loadingScreen">
   <div id="loadingText">Yükleniyor...</div>
@@ -194,6 +301,13 @@
     <button id="leftBtn" class="btn">◀️</button>
     <button id="rightBtn" class="btn">▶️</button>
   </div>
+  <div id="scoreDisplay">Skor: 0</div>
+  <div id="fuelDisplay"><span id="fuelCountdown">Kalan: 15s</span></div>
+</div>
+
+<div id="gameOverScreen">
+    <div>OYUN BİTTİ!</div>
+    <button id="restartButton">TEKRAR OYNA</button>
 </div>
 
 <script>
@@ -205,17 +319,34 @@
   const loadingScreen = document.getElementById("loadingScreen");
   const loadingText = document.getElementById("loadingText");
   const startButton = document.getElementById("startButton");
+  const gameOverScreen = document.getElementById("gameOverScreen");
+  const restartButton = document.getElementById("restartButton");
+  const scoreDisplay = document.getElementById("scoreDisplay");
+  const fuelDisplay = document.getElementById("fuelDisplay");
+  const fuelCountdown = document.getElementById("fuelCountdown");
 
   const carSound = new Audio('araba.mp3');
   carSound.loop = true;
-  carSound.volume = 0.8; // Ses seviyesini sabit tut
+  carSound.volume = 0.8;
 
   let offset = 0;
   let velocity = 0;
   let acceleration = 0;
-  const friction = 0.95;
+  // ARABA HIZ AYARLARI - DÜZELTİLMİŞ
+  const friction = 0.95; // Biraz artırıldı (eskiden 0.97 idi)
+  const maxVelocity = 12; // Önemli ölçüde azaltıldı (eskiden 18 idi)
+  const accelerationRate = 0.4; // Biraz azaltıldı (eskiden 0.6 idi)
+  const stopSoundThreshold = 0.5;
+
+  let gameRunning = false;
+  let animationFrameId;
 
   let isPlayingSound = false;
+
+  let score = 0;
+  const initialFuelCountdown = 15;
+  let fuelCountdownTimer = initialFuelCountdown;
+  let fuelIntervalId = null;
 
   const treeList = [];
   let lastTreePosition = 0;
@@ -224,6 +355,136 @@
   let lastCloudPosition = 0;
   const cloudSpawnMinDistance = 150;
   const cloudSpawnMaxDistance = 400;
+
+  const trafficLightList = [];
+  let lastTrafficLightPosition = 0;
+  const trafficLightSpawnMinDistance = 3000;
+  const trafficLightSpawnMaxDistance = 5000;
+
+  const fuelCanList = [];
+  let lastFuelCanPosition = 0;
+  const fuelCanSpawnMinDistance = 2500;
+  const fuelCanSpawnMaxDistance = 5000;
+
+
+  // Trafik Işığı Sınıfı
+  class TrafficLight {
+    constructor(globalX) {
+      this.globalX = globalX;
+      this.element = document.createElement("div");
+      this.element.className = "traffic-light";
+      this.redLight = document.createElement("div");
+      this.yellowLight = document.createElement("div");
+      this.greenLight = document.createElement("div");
+
+      this.redLight.className = "light red";
+      this.yellowLight.className = "light yellow";
+      this.greenLight.className = "light green";
+
+      this.element.appendChild(this.redLight);
+      this.element.appendChild(this.yellowLight);
+      this.element.appendChild(this.greenLight);
+      game.appendChild(this.element);
+
+      this.state = 'red';
+      this.lightInterval = null;
+      this.updateLights();
+      this.startCycle();
+    }
+
+    updateLights() {
+      this.redLight.classList.remove('active');
+      this.yellowLight.classList.remove('active');
+      this.greenLight.classList.remove('active');
+
+      if (this.state === 'red') {
+        this.redLight.classList.add('active');
+      } else if (this.state === 'yellow') {
+        this.yellowLight.classList.add('active');
+      } else if (this.state === 'green') {
+        this.greenLight.classList.add('active');
+      }
+    }
+
+    startCycle() {
+      if (this.lightInterval) {
+        clearInterval(this.lightInterval);
+      }
+
+      const cycleLights = () => {
+        if (!gameRunning) {
+          this.stopCycle();
+          return;
+        }
+
+        if (this.state === 'red') {
+          this.state = 'green';
+          this.updateLights();
+          this.lightInterval = setTimeout(() => cycleLights(), 5000);
+        } else if (this.state === 'green') {
+          this.state = 'yellow';
+          this.updateLights();
+          this.lightInterval = setTimeout(() => cycleLights(), 1000);
+        } else if (this.state === 'yellow') {
+          this.state = 'red';
+          this.updateLights();
+          this.lightInterval = setTimeout(() => cycleLights(), 3000);
+        }
+      };
+      this.state = ['red', 'yellow', 'green'][Math.floor(Math.random() * 3)];
+      this.updateLights();
+      this.lightInterval = setTimeout(() => cycleLights(), 100);
+    }
+
+    stopCycle() {
+        if (this.lightInterval) {
+            clearTimeout(this.lightInterval);
+            this.lightInterval = null;
+        }
+    }
+
+    remove() {
+      this.stopCycle();
+      if (this.element && this.element.parentNode) {
+          this.element.parentNode.removeChild(this.element);
+      }
+    }
+  }
+
+  // Benzin Bidonu Fonksiyonları
+  function createFuelCan(globalX) {
+    const fuelCan = document.createElement("div");
+    fuelCan.className = "fuel-can";
+    fuelCan.dataset.globalX = globalX;
+    fuelCan.textContent = "⛽";
+    game.appendChild(fuelCan);
+    fuelCanList.push(fuelCan);
+  }
+
+  function updateFuelCans() {
+    for (let i = fuelCanList.length - 1; i >= 0; i--) {
+      let fuelCan = fuelCanList[i];
+      const globalX = parseFloat(fuelCan.dataset.globalX);
+      const screenX = globalX - offset;
+      fuelCan.style.left = screenX + "px";
+
+      const carScreenX = window.innerWidth / 2;
+      const fuelCanWidth = 40;
+      const carWidth = 60;
+
+      const isCarNearFuelCan = (carScreenX + carWidth / 2 > screenX && carScreenX - carWidth / 2 < screenX + fuelCanWidth);
+
+      if (isCarNearFuelCan) {
+          fuelCountdownTimer = initialFuelCountdown;
+          updateFuelDisplay();
+          fuelCan.remove();
+          fuelCanList.splice(i, 1);
+      } else if (screenX < -100) {
+          fuelCan.remove();
+          fuelCanList.splice(i, 1);
+      }
+    }
+  }
 
   function createGround() {
     const segment = document.createElement("div");
@@ -258,37 +519,125 @@
     cloudList.push(cloud);
   }
 
+  function createTrafficLight(globalX) {
+    const light = new TrafficLight(globalX);
+    trafficLightList.push(light);
+  }
+
   function updateTrees() {
-    for (let tree of treeList) {
+    for (let i = treeList.length - 1; i >= 0; i--) {
+      let tree = treeList[i];
       const globalX = parseFloat(tree.dataset.globalX);
       const screenX = globalX - offset;
       tree.style.left = screenX + "px";
 
       if (screenX < -100) {
         tree.remove();
-        treeList.splice(treeList.indexOf(tree), 1);
+        treeList.splice(i, 1);
       }
     }
   }
 
   function updateClouds() {
-    for (let cloud of cloudList) {
+    for (let i = cloudList.length - 1; i >= 0; i--) {
+      let cloud = cloudList[i];
       const globalX = parseFloat(cloud.dataset.globalX);
       const screenX = globalX - offset * 0.2;
       cloud.style.left = screenX + "px";
 
       if (screenX < -200) {
         cloud.remove();
-        cloudList.splice(cloudList.indexOf(cloud), 1);
+        cloudList.splice(i, 1);
       }
     }
   }
 
+  function updateTrafficLights() {
+    for (let i = trafficLightList.length - 1; i >= 0; i--) {
+      let light = trafficLightList[i];
+      const screenX = light.globalX - offset;
+      light.element.style.left = screenX + "px";
+
+      const carScreenX = window.innerWidth / 2;
+      const lightWidth = 40;
+      const carWidth = 60;
+
+      const lightVisibleOnScreen = screenX > -lightWidth && screenX < window.innerWidth;
+
+      if (light.state === 'red' && lightVisibleOnScreen &&
+          carScreenX + carWidth / 2 > screenX &&
+          carScreenX - carWidth / 2 < screenX + lightWidth)
+      {
+          if (Math.abs(velocity) > stopSoundThreshold) {
+              gameOver("Kırmızı ışıkta geçtin!");
+              return;
+          }
+      }
+
+      if (screenX < -lightWidth) {
+        light.remove();
+        trafficLightList.splice(i, 1);
+      }
+    }
+  }
+
+  function updateScore() {
+    score = Math.floor(Math.abs(offset) / 100);
+    scoreDisplay.textContent = `Skor: ${score}`;
+  }
+
+  function updateFuelDisplay() {
+      fuelCountdown.textContent = `Kalan: ${fuelCountdownTimer}s`;
+      if (fuelCountdownTimer <= 5) {
+          fuelCountdown.style.color = "red";
+      } else {
+          fuelCountdown.style.color = "#ffcc00";
+      }
+  }
+
+  function startFuelCountdown() {
+      if (fuelIntervalId) clearInterval(fuelIntervalId);
+
+      fuelCountdownTimer = initialFuelCountdown;
+      updateFuelDisplay();
+
+      fuelIntervalId = setInterval(() => {
+          if (!gameRunning) {
+              clearInterval(fuelIntervalId);
+              return;
+          }
+          fuelCountdownTimer--;
+          updateFuelDisplay();
+
+          if (fuelCountdownTimer <= 0) {
+              gameOver("Benzinin bitti!");
+              clearInterval(fuelIntervalId);
+          }
+      }, 1000);
+  }
+
+  function stopFuelCountdown() {
+      if (fuelIntervalId) {
+          clearInterval(fuelIntervalId);
+          fuelIntervalId = null;
+      }
+  }
+
+
   function update() {
+    if (!gameRunning) return;
+
     velocity += acceleration;
+    velocity = Math.max(-maxVelocity, Math.min(velocity, maxVelocity));
     velocity *= friction;
     offset -= velocity;
     world.style.left = -offset + "px";
+
+    if (Math.abs(velocity) < stopSoundThreshold && isPlayingSound) {
+        stopCarSound();
+    } else if (Math.abs(velocity) >= stopSoundThreshold && !isPlayingSound && gameRunning) {
+        startCarSound();
+    }
 
     const neededSegments = Math.ceil((Math.abs(offset) + window.innerWidth) / 200);
     while (world.children.length < neededSegments) {
@@ -296,6 +645,7 @@
     }
 
     const currentGroundEnd = offset + world.children.length * 200;
+
     while (currentGroundEnd - lastTreePosition >= 300) {
       createTree(lastTreePosition + Math.random() * 200 + 100);
       lastTreePosition = parseFloat(treeList[treeList.length - 1].dataset.globalX);
@@ -308,21 +658,116 @@
       lastCloudPosition = spawnX;
     }
 
+    // TRAFİK IŞIKLARI VE BENZİN BİDONLARI İÇİN YENİ RASTGELE YERLEŞİM MANTIĞI
+    // Her obje için ayrı bir "bir sonraki hedef spawn konumu" belirle
+    // Bu sayede objeler birbirlerinin spawnını etkilemez.
+
+    // Trafik ışıklarını oluştur
+    // Eğer ekranda hiç trafik ışığı yoksa veya en sağdaki ışık yeterince uzaktaysa yeni bir tane oluştur
+    if (trafficLightList.length === 0 ||
+        (trafficLightList[trafficLightList.length - 1].globalX - offset) < (window.innerWidth - trafficLightSpawnMinDistance)) { // Ekranın sağına yaklaşınca yeni bir tane ekle
+        const minSpawnFromScreenRight = 500; // Ekranın sağından minimum 500px uzakta başla
+        const randomDistance = Math.random() * (trafficLightSpawnMaxDistance - trafficLightSpawnMinDistance) + trafficLightSpawnMinDistance;
+        const spawnX = offset + window.innerWidth + minSpawnFromScreenRight + randomDistance;
+        createTrafficLight(spawnX);
+    }
+
+    // Benzin bidonlarını oluştur
+    // Eğer ekranda hiç benzin bidonu yoksa veya en sağdaki bidon yeterince uzaktaysa yeni bir tane oluştur
+    if (fuelCanList.length === 0 ||
+        (fuelCanList[fuelCanList.length - 1].dataset.globalX - offset) < (window.innerWidth - fuelCanSpawnMinDistance)) { // Ekranın sağına yaklaşınca yeni bir tane ekle
+        const minSpawnFromScreenRight = 300; // Ekranın sağından minimum 300px uzakta başla (trafik ışıktan biraz daha yakın olabilir)
+        const randomDistance = Math.random() * (fuelCanSpawnMaxDistance - fuelCanSpawnMinDistance) + fuelCanSpawnMinDistance;
+        const spawnX = offset + window.innerWidth + minSpawnFromScreenRight + randomDistance;
+        createFuelCan(spawnX);
+    }
+
+
     updateTrees();
     updateClouds();
+    updateTrafficLights();
+    updateFuelCans();
+    updateScore();
 
-    requestAnimationFrame(update);
+    animationFrameId = requestAnimationFrame(update);
   }
 
-  // Fonksiyon: Sesi başlat
+  function startGame() {
+    if (gameRunning) return;
+
+    offset = 0;
+    velocity = 0;
+    acceleration = 0;
+    score = 0;
+    fuelCountdownTimer = initialFuelCountdown;
+
+    gameRunning = true;
+
+    while(world.firstChild) world.removeChild(world.firstChild);
+    treeList.forEach(tree => tree.remove());
+    treeList.length = 0;
+    cloudList.forEach(cloud => cloud.remove());
+    cloudList.length = 0;
+    trafficLightList.forEach(light => light.remove());
+    trafficLightList.length = 0;
+    fuelCanList.forEach(can => can.remove());
+    fuelCanList.length = 0;
+
+
+    for(let i=0; i < Math.ceil(window.innerWidth / 200) + 2; i++) {
+        createGround();
+    }
+    lastTreePosition = offset;
+    lastCloudPosition = offset;
+    // lastTrafficLightPosition ve lastFuelCanPosition artık başlangıçta kullanılmayacak
+    // Çünkü yeni mantık, ekranın sağından itibaren rastgele spawn yapacak.
+
+
+    for(let i = 0; i < 5; i++) {
+        createTree(lastTreePosition + Math.random() * 200 + 100);
+        lastTreePosition = parseFloat(treeList[treeList.length - 1].dataset.globalX);
+    }
+    for(let i = 0; i < 5; i++) {
+        createCloud(lastCloudPosition + Math.random() * 200 + 100);
+        lastCloudPosition = parseFloat(cloudList[cloudList.length - 1].dataset.globalX);
+    }
+    // Başlangıçta 1 trafik ışığı ve 1 benzin bidonu oluştur
+    createTrafficLight(offset + window.innerWidth + 1000); // İlk trafik ışığı ekranın sağından 1000px uzakta
+    createFuelCan(offset + window.innerWidth + 500); // İlk benzin bidonu ekranın sağından 500px uzakta
+
+
+    loadingScreen.style.display = "none";
+    gameOverScreen.style.display = "none";
+    game.style.display = "block";
+    
+    updateScore();
+    updateFuelDisplay();
+    startFuelCountdown();
+
+    animationFrameId = requestAnimationFrame(update);
+  }
+
+  function gameOver(reason = "Oyun Bitti!") {
+    if (!gameRunning) return;
+
+    gameRunning = false;
+    cancelAnimationFrame(animationFrameId);
+    stopCarSound();
+    stopFuelCountdown();
+
+    document.querySelector("#gameOverScreen div").textContent = `OYUN BİTTİ! (${reason})`;
+    gameOverScreen.style.display = "flex";
+
+    trafficLightList.forEach(light => light.stopCycle());
+  }
+
   function startCarSound() {
-    if (!isPlayingSound) {
+    if (!isPlayingSound && gameRunning) {
       carSound.play().catch(e => console.log("Ses çalma hatası:", e));
       isPlayingSound = true;
     }
   }
 
-  // Fonksiyon: Sesi durdur
   function stopCarSound() {
     if (isPlayingSound) {
       carSound.pause();
@@ -332,16 +777,22 @@
   }
 
   function hold(dir) {
-    acceleration = dir;
+    if (!gameRunning) return;
+    acceleration = dir * accelerationRate;
     clearInterval(window.holdInt);
-    window.holdInt = setInterval(() => acceleration = dir, 16);
-    startCarSound();
+    window.holdInt = setInterval(() => {
+        if (!gameRunning) {
+            clearInterval(window.holdInt);
+            return;
+        }
+        acceleration = dir * accelerationRate;
+    }, 16);
   }
 
   function stop() {
+    if (!gameRunning) return;
     clearInterval(window.holdInt);
     acceleration = 0;
-    stopCarSound();
   }
 
   setup(leftBtn, 0.5);
@@ -357,45 +808,42 @@
 
   function checkOrientation() {
     const warning = document.getElementById("orientationWarning");
-    warning.style.display = window.innerHeight > window.innerWidth ? "flex" : "none";
+    if (window.innerHeight > window.innerWidth) {
+      warning.style.display = "flex";
+      if (gameRunning) {
+          gameOver("Cihaz döndürüldü!");
+      }
+      loadingScreen.style.display = "none";
+      game.style.display = "none";
+      gameOverScreen.style.display = "none";
+      stopCarSound();
+    } else {
+      warning.style.display = "none";
+      if (!gameRunning && gameOverScreen.style.display === "none") {
+          loadingScreen.style.display = "flex";
+      }
+    }
   }
   window.addEventListener("resize", checkOrientation);
   window.addEventListener("orientationchange", checkOrientation);
   checkOrientation();
 
-  // Yükleme ekranını ve oyunu başlatma mantığı
   document.addEventListener('DOMContentLoaded', () => {
-    // Ses dosyasının yüklenmesini bekleyebiliriz
-    carSound.addEventListener('canplaythrough', () => {
-        loadingText.textContent = "Hazır!";
-        startButton.style.display = "block"; // Başlat düğmesini göster
-    }, { once: true }); // Sadece bir kez tetiklensin
+    loadingText.textContent = "Hazır!";
+    startButton.style.display = "block";
+    
+    startButton.addEventListener('click', startGame);
+    restartButton.addEventListener('click', startGame);
 
-    // Eğer ses dosyası hızlı yüklenirse veya bir hata olursa, belirli bir süre sonra da Başla düğmesini gösterebiliriz.
-    setTimeout(() => {
-        if (startButton.style.display === "none") { // Eğer henüz gösterilmemişse
-            loadingText.textContent = "Hazır!";
-            startButton.style.display = "block";
-        }
-    }, 2000); // 2 saniye sonra göster (istersen bu süreyi değiştirebilirsin)
-
-    startButton.addEventListener('click', () => {
-        loadingScreen.style.display = "none"; // Yükleme ekranını gizle
-        game.style.display = "block"; // Oyun ekranını göster
-        // Oyunun başlangıç ayarlarını burada yap
-        for(let i=0; i < Math.ceil(window.innerWidth / 200) + 2; i++) {
-            createGround();
-        }
-        for(let i = 0; i < 5; i++) {
-            createTree(i * 300 + Math.random() * 100);
-            lastTreePosition = parseFloat(treeList[treeList.length - 1].dataset.globalX);
-        }
-        for(let i = 0; i < 5; i++) {
-            createCloud(i * 400 + Math.random() * 200);
-            lastCloudPosition = parseFloat(cloudList[cloudList.length - 1].dataset.globalX);
-        }
-        update(); // Oyun döngüsünü başlat
-    });
+    if (window.innerHeight > window.innerWidth) {
+        loadingScreen.style.display = "none";
+        game.style.display = "none";
+        gameOverScreen.style.display = "none";
+    } else {
+        loadingScreen.style.display = "flex";
+        game.style.display = "none";
+        gameOverScreen.style.display = "none";
+    }
   });
 </script>
 
