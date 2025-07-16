@@ -29,6 +29,42 @@
       background: linear-gradient(to top, #87ceeb, #e0f7ff);
       overflow: hidden;
       position: relative;
+      /* Başlangıçta gizli olacak */
+      display: none;
+    }
+
+    #loadingScreen {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: #333; /* Koyu gri arka plan */
+      color: white;
+      font-size: 28px;
+      display: flex;
+      flex-direction: column; /* Öğeleri dikeyde sırala */
+      align-items: center;
+      justify-content: center;
+      z-index: 10000; /* Her şeyin üzerinde olsun */
+    }
+
+    #loadingText {
+      margin-bottom: 20px;
+    }
+
+    #startButton {
+      background: #4CAF50;
+      color: white;
+      padding: 15px 30px;
+      border: none;
+      border-radius: 8px;
+      font-size: 24px;
+      cursor: pointer;
+      display: none; /* Başlangıçta gizli */
+    }
+
+    #startButton:hover {
+      background: #45a049;
     }
 
     .cloud {
@@ -66,25 +102,23 @@
       z-index: 3;
     }
 
-    #car { /* Bu kısım fotoğraf için güncellendi */
+    #car {
+      font-size: 60px;
       position: absolute;
-      bottom: 100px; /* Zeminden yukarıda */
+      bottom: 100px;
       left: 50%;
-      transform: translateX(-50%);
+      transform: translateX(-50%) scaleX(-1);
       z-index: 4;
-      /* güney.png fotoğrafı için boyutlandırma */
-      width: 60px; /* Yaklaşık araba emojisi boyutu */
-      height: auto; /* Oranı koru */
-      display: block; /* img elementlerinin varsayılan boşluğunu kaldırır */
     }
 
     .controls {
       position: absolute;
       bottom: 120px;
-      left: 50%;
-      transform: translateX(-50%);
+      width: 100%;
       display: flex;
-      gap: 40px;
+      justify-content: space-between;
+      padding: 0 20px;
+      box-sizing: border-box;
       z-index: 5;
     }
 
@@ -104,9 +138,14 @@
 
 <div id="orientationWarning">Lütfen telefonu yatay çevirin 📱➡️📱</div>
 
+<div id="loadingScreen">
+  <div id="loadingText">Yükleniyor...</div>
+  <button id="startButton">Başla</button>
+</div>
+
 <div id="game">
   <div id="world"></div>
-  <img id="car" src="güney.png" alt="Güney" />
+  <div id="car">🚗</div>
   <div class="controls">
     <button id="leftBtn" class="btn">◀️</button>
     <button id="rightBtn" class="btn">▶️</button>
@@ -118,12 +157,21 @@
   const leftBtn = document.getElementById("leftBtn");
   const rightBtn = document.getElementById("rightBtn");
   const game = document.getElementById("game");
-  const car = document.getElementById("car"); // Araba elementini de alıyoruz
+  const car = document.getElementById("car");
+  const loadingScreen = document.getElementById("loadingScreen");
+  const loadingText = document.getElementById("loadingText");
+  const startButton = document.getElementById("startButton");
+
+  const carSound = new Audio('araba.mp3');
+  carSound.loop = true;
+  carSound.volume = 0.8; // Ses seviyesini sabit tut
 
   let offset = 0;
   let velocity = 0;
   let acceleration = 0;
   const friction = 0.95;
+
+  let isPlayingSound = false;
 
   const treeList = [];
   let lastTreePosition = 0;
@@ -198,20 +246,17 @@
     offset -= velocity;
     world.style.left = -offset + "px";
 
-    // Zemin segmentlerini oluşturma
     const neededSegments = Math.ceil((Math.abs(offset) + window.innerWidth) / 200);
     while (world.children.length < neededSegments) {
       createGround();
     }
 
-    // Ağaçları oluşturma
     const currentGroundEnd = offset + world.children.length * 200;
     while (currentGroundEnd - lastTreePosition >= 300) {
       createTree(lastTreePosition + Math.random() * 200 + 100);
       lastTreePosition = parseFloat(treeList[treeList.length - 1].dataset.globalX);
     }
 
-    // Bulutları oluşturma
     const screenRightEdge = offset + window.innerWidth;
     if (screenRightEdge - lastCloudPosition > cloudSpawnMinDistance) {
       const spawnX = lastCloudPosition + Math.random() * (cloudSpawnMaxDistance - cloudSpawnMinDistance) + cloudSpawnMinDistance;
@@ -225,15 +270,34 @@
     requestAnimationFrame(update);
   }
 
+  // Fonksiyon: Sesi başlat
+  function startCarSound() {
+    if (!isPlayingSound) {
+      carSound.play().catch(e => console.log("Ses çalma hatası:", e));
+      isPlayingSound = true;
+    }
+  }
+
+  // Fonksiyon: Sesi durdur
+  function stopCarSound() {
+    if (isPlayingSound) {
+      carSound.pause();
+      carSound.currentTime = 0;
+      isPlayingSound = false;
+    }
+  }
+
   function hold(dir) {
     acceleration = dir;
     clearInterval(window.holdInt);
     window.holdInt = setInterval(() => acceleration = dir, 16);
+    startCarSound();
   }
 
   function stop() {
     clearInterval(window.holdInt);
     acceleration = 0;
+    stopCarSound();
   }
 
   setup(leftBtn, 0.5);
@@ -255,24 +319,40 @@
   window.addEventListener("orientationchange", checkOrientation);
   checkOrientation();
 
-  // İlk zemin segmentlerini oluştur
-  for(let i=0; i < Math.ceil(window.innerWidth / 200) + 2; i++) {
-      createGround();
-  }
+  // Yükleme ekranını ve oyunu başlatma mantığı
+  document.addEventListener('DOMContentLoaded', () => {
+    // Ses dosyasının yüklenmesini bekleyebiliriz
+    carSound.addEventListener('canplaythrough', () => {
+        loadingText.textContent = "Hazır!";
+        startButton.style.display = "block"; // Başlat düğmesini göster
+    }, { once: true }); // Sadece bir kez tetiklensin
 
-  // Başlangıçta birkaç ağaç oluştur
-  for(let i = 0; i < 5; i++) {
-      createTree(i * 300 + Math.random() * 100);
-      lastTreePosition = parseFloat(treeList[treeList.length - 1].dataset.globalX);
-  }
+    // Eğer ses dosyası hızlı yüklenirse veya bir hata olursa, belirli bir süre sonra da Başla düğmesini gösterebiliriz.
+    setTimeout(() => {
+        if (startButton.style.display === "none") { // Eğer henüz gösterilmemişse
+            loadingText.textContent = "Hazır!";
+            startButton.style.display = "block";
+        }
+    }, 2000); // 2 saniye sonra göster (istersen bu süreyi değiştirebilirsin)
 
-  // Başlangıçta birkaç bulut oluştur
-  for(let i = 0; i < 5; i++) {
-      createCloud(i * 400 + Math.random() * 200);
-      lastCloudPosition = parseFloat(cloudList[cloudList.length - 1].dataset.globalX);
-  }
-
-  update();
+    startButton.addEventListener('click', () => {
+        loadingScreen.style.display = "none"; // Yükleme ekranını gizle
+        game.style.display = "block"; // Oyun ekranını göster
+        // Oyunun başlangıç ayarlarını burada yap
+        for(let i=0; i < Math.ceil(window.innerWidth / 200) + 2; i++) {
+            createGround();
+        }
+        for(let i = 0; i < 5; i++) {
+            createTree(i * 300 + Math.random() * 100);
+            lastTreePosition = parseFloat(treeList[treeList.length - 1].dataset.globalX);
+        }
+        for(let i = 0; i < 5; i++) {
+            createCloud(i * 400 + Math.random() * 200);
+            lastCloudPosition = parseFloat(cloudList[cloudList.length - 1].dataset.globalX);
+        }
+        update(); // Oyun döngüsünü başlat
+    });
+  });
 </script>
 
 </body>
