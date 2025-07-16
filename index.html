@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <title>🚗 Hill Climb - Sabit Basılı Tutma</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { height: 100%; overflow: hidden; font-family: sans-serif; }
+
+    #orientationWarning {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: #000;
+      color: white;
+      font-size: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      z-index: 9999;
+    }
+
+    #game {
+      width: 100vw;
+      height: 100vh;
+      position: relative;
+      background: linear-gradient(to top, #6bdbff, #b7f0ff);
+    }
+
+    #ground {
+      position: absolute;
+      bottom: 0;
+      height: 100px;
+      width: 200%;
+      background: #4CAF50;
+    }
+
+    #car {
+      font-size: 60px;
+      position: absolute;
+      bottom: 100px;
+      left: 100px;
+    }
+
+    .controls {
+      position: absolute;
+      bottom: 110px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 40px;
+      z-index: 10;
+    }
+
+    .btn {
+      background: rgba(0,0,0,0.6);
+      color: white;
+      padding: 12px 18px;
+      border-radius: 10px;
+      font-size: 18px;
+      border: none;
+      user-select: none;
+      touch-action: none;
+    }
+
+    .btn:active {
+      background: rgba(0,0,0,0.8);
+    }
+  </style>
+</head>
+<body>
+
+<div id="orientationWarning">
+  Lütfen daha iyi bir deneyim için<br><strong>telefonu yatay konuma çevirin 📱➡️📱</strong>
+</div>
+
+<div id="game">
+  <div id="ground"></div>
+  <div id="car">🚗</div>
+
+  <div class="controls">
+    <button id="leftBtn" class="btn">◀️</button>
+    <button id="rightBtn" class="btn">▶️</button>
+  </div>
+</div>
+
+<script>
+  const car = document.getElementById("car");
+  const leftBtn = document.getElementById("leftBtn");
+  const rightBtn = document.getElementById("rightBtn");
+
+  let carX = 100;
+  let velocity = 0;
+  let acceleration = 0;
+  const friction = 0.95;
+
+  function update() {
+    velocity += acceleration;
+    velocity *= friction;
+    carX += velocity;
+
+    if (carX < 0) carX = 0;
+    if (carX > window.innerWidth - 60) carX = window.innerWidth - 60;
+
+    car.style.left = carX + "px";
+    requestAnimationFrame(update);
+  }
+
+  // Klavye kontrol
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "ArrowRight") acceleration = 0.5;
+    if (e.key === "ArrowLeft") acceleration = -0.5;
+  });
+
+  document.addEventListener("keyup", (e) => {
+    if (e.key === "ArrowRight" || e.key === "ArrowLeft") acceleration = 0;
+  });
+
+  // Basılı tutma için interval sistemi
+  let holdInterval = null;
+
+  function handleHoldStart(direction) {
+    acceleration = direction;
+    if (holdInterval) clearInterval(holdInterval);
+    holdInterval = setInterval(() => {
+      acceleration = direction;
+    }, 16); // yaklaşık 60 FPS
+  }
+
+  function handleHoldStop() {
+    if (holdInterval) clearInterval(holdInterval);
+    holdInterval = null;
+    acceleration = 0;
+  }
+
+  function setupHoldEvents(btn, direction) {
+    btn.addEventListener("touchstart", (e) => {
+      e.preventDefault();
+      handleHoldStart(direction);
+    });
+    btn.addEventListener("touchend", handleHoldStop);
+    btn.addEventListener("touchcancel", handleHoldStop);
+
+    btn.addEventListener("mousedown", () => handleHoldStart(direction));
+    btn.addEventListener("mouseup", handleHoldStop);
+    btn.addEventListener("mouseleave", handleHoldStop);
+  }
+
+  setupHoldEvents(leftBtn, -0.5);
+  setupHoldEvents(rightBtn, 0.5);
+
+  // Ekran yönü kontrolü
+  function checkOrientation() {
+    const warning = document.getElementById("orientationWarning");
+    const game = document.getElementById("game");
+    if (window.innerHeight > window.innerWidth) {
+      warning.style.display = "flex";
+      game.style.display = "none";
+    } else {
+      warning.style.display = "none";
+      game.style.display = "block";
+    }
+  }
+
+  window.addEventListener("resize", checkOrientation);
+  window.addEventListener("orientationchange", checkOrientation);
+  checkOrientation();
+  update();
+</script>
+
+</body>
+</html>
